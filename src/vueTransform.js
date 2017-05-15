@@ -52,11 +52,11 @@ async function processTemplate (source, id, content, options, nodes, modules) {
     debug(`Process template: ${id}`)
 
     const extras = { modules, id, lang: source.attrs.lang }
-    const { code } = source
-    const template = deIndent(
-          await (options.disableCssModuleStaticReplacement !== true
+    const code = deIndent(source.code)
+    const template = await (
+          options.disableCssModuleStaticReplacement !== true
                 ? templateProcessor(code, extras, options)
-                : code)
+                : code
     )
 
     if (!options.compileTemplate) {
@@ -134,10 +134,10 @@ async function processStyle (styles, id, content, options) {
             map: map,
             lang: style.attrs.lang || 'css',
             module: 'module' in style.attrs ? style.attrs.module || true : false,
-            scoped: 'scoped' in style.attrs ? style.attrs.scoped || true : false
+            scoped: 'scoped' in style.attrs
         }
 
-        outputs.push(options.autoStyles ? await compile(output, options) : output)
+        outputs.push(options.autoStyles || output.scoped || output.module ? await compile(output, options) : output)
     }
 
     return outputs
